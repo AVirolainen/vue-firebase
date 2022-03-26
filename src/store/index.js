@@ -35,6 +35,7 @@ export default createStore({
           default:
             alert("Something went wrong");
         }
+        return;
       }
       commit("SET_USER", auth.currentUser);
       router.push("/");
@@ -60,10 +61,30 @@ export default createStore({
           default:
             alert("Something went wrong");
         }
+        return;
       }
       commit("SET_USER", auth.currentUser);
       router.push("/");
     },
-    // async logout({ commit }) {},
+    async logout({ commit }) {
+      await signOut(auth);
+
+      commit("CLEAR_USER");
+
+      router.push("/login");
+    },
+    fetchUser({ commit }) {
+      auth.onAuthStateChanged(async (user) => {
+        if (user === null) {
+          commit("CLEAR_USER");
+        } else {
+          commit("SET_USER", user);
+
+          if (router.isReady() && router.currentRoute.value.path === "/login") {
+            router.push("/");
+          }
+        }
+      });
+    },
   },
 });
